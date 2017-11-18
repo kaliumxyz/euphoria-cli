@@ -1,0 +1,28 @@
+{
+  "name": "euphoria-cli",
+  "version": "1.0.0",
+  "description": "◓ served hot on your command line 😈",
+  "main": "index.js",
+  "scripts": {
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaliumxyz/euphoria-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaliumxyz/euphoria-cli/issues"
+  },
+  "homepage": "https://github.com/kaliumxyz/euphoria-cli#readme",
+  "dependencies": {
+    "chalk": "^2.3.0",
+    "euphoria-color": "^1.0.2",
+    "euphoria-connection": "^0.5.2"
+  },
+  "devDependencies": {
+    "ava": "^0.23.0"
+  }
+}

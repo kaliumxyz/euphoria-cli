@@ -1,0 +1,15 @@
+{
+	"nick": "K",
+	"room": "xkcd",
+	"dataset": "dataset.txt",
+	"human": 1,
+	"override": true,
+	"prompt": ">",
+	"afk": {
+		"delay": 600
+	},
+	"reply": {
+		"delay": 5,
+		"type": "markov"
+	}
+}
