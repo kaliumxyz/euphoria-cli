@@ -11,6 +11,9 @@ const chalk = require('chalk');
 /* configurtation */
 const config = require('./config.json');
 
+/* globals */
+let userList;
+
 // allows the user to override any setting in the config file by affixing --{setting} {option} when calling the script 
 const args = process.argv
 		.join()
@@ -28,7 +31,7 @@ const connection = new euphoriaConnection(config.room, config.human, "wss://euph
 const logStream = fs.createWriteStream(path.join(__dirname, `application.log`), { flags: 'a' });
 function log(...text) {
 		text.forEach(text => {
-			process.stdout.write(`\n${text}\n`)
+			process.stdout.write(`${text}\n`)
 			logStream.write(`${Date.now()} - ${JSON.stringify(text)}\n`)
 		});
 	}
@@ -40,7 +43,8 @@ let afkCounter = config.afk.delay * 1000;
 
 const rl = readline.createInterface({
 	completer: line => {
-		return [["3","2","1"],"a"]
+		let list = userList.map(user => user.name)
+		return [list, line]
 	},
 	prompt: `${config.nick}${config.prompt}`,
 	input: process.stdin,
@@ -48,8 +52,8 @@ const rl = readline.createInterface({
 	terminal: true
 });
 
-connection.on('send-event', handlePost);
-connection.on('send-reply', handlePost);
+connection.on('send-event', handleEvent);
+connection.on('send-reply', handleEvent);
 
 /**
  * format id in the split colors appropriate.
@@ -66,6 +70,17 @@ function formatID(id){
 }
 
 /**
+ * 
+ * @param {Object} event 
+ */
+
+function handleEvent(event){
+	const data = event.data;
+	handlePost(data);
+	rl.prompt(true);
+}
+
+/**
  * formats and writes a euphoria post to TTY.
  * @param {Object} post 
  */
@@ -73,15 +88,12 @@ function formatID(id){
 function handlePost(post) {
 	rl.pause();
 	// log anything posted
-	const data = post.data;
-	let parent = formatID(data.parent);
-	let agent = chalk.black(chalk.bgHsl(color(data.sender.id), 100, 50)(data.sender.id));
+	let parent = formatID(post.parent);
+	let agent = chalk.black(chalk.bgHsl(color(post.sender.id), 100, 50)(post.sender.id));
 	
-	log(`${parent}:${formatID(data.id)}:${chalk.hsl(color(data.sender.name),  100, 50)(data.sender.name)}: ${agent}> ${data.content}`);
-	memory.push(data);
-	rl.prompt(true);
+	log(`${parent}:${formatID(post.id)}:${chalk.hsl(color(post.sender.name),  100, 50)(post.sender.name)}: ${agent}> ${post.content}`);
+	memory.push(post);
 	rl.resume();
-
 }
 
 
@@ -127,6 +139,15 @@ rl.on('line', line => {
 
 });
 
+
+/**
+ * 
+ * @param {*} userlist 
+ */
+function renderUsers(userlist) {
+	
+}
+
 /**
  * sets the nick to {nick}
  * @param {String} nick 
@@ -138,6 +159,13 @@ function nick(nick = "><>") {
 }
 
 connection.once('ready', () => {
+	
+	// start with reading out the snapshot event
+	connection.once('snapshot-event', ev => {
+		userList = ev.data.listing;
+		ev.data.log.forEach(handlePost);
+	});
+	
 	connection.nick(config.nick)
 	log('bot initiated');
 	rl.prompt();
