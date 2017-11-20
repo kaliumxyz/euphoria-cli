@@ -39,6 +39,9 @@ const stack = []; // planned event stack (timeouts) to allow us to override defa
 let afkCounter = config.afk.delay * 1000;
 
 const rl = readline.createInterface({
+	completer: line => {
+		return [["3","2","1"],"a"]
+	},
 	prompt: `${config.nick}${config.prompt}`,
 	input: process.stdin,
 	output: process.stdout,
@@ -48,15 +51,36 @@ const rl = readline.createInterface({
 connection.on('send-event', handlePost);
 connection.on('send-reply', handlePost);
 
+/**
+ * format id in the split colors appropriate.
+ * @param {String} id
+ */
+function formatID(id){
+	return id
+		? chalk.black(
+			chalk.bgHsl(color(id.slice(0, id.length/2)), 100, 50)(id.slice(0, id.length/2))
+			+ chalk.bgHsl(color(id.slice(id.length/2)), 100, 50)(id.slice(id.length/2))
+		) 
+		: ""
+	;
+}
+
+/**
+ * formats and writes a euphoria post to TTY.
+ * @param {Object} post 
+ */
+
 function handlePost(post) {
+	rl.pause();
 	// log anything posted
 	const data = post.data;
-	let parent = data.parent ? chalk.black(chalk.bgHsl(color(data.parent), 100, 50)(data.parent)) : "";
+	let parent = formatID(data.parent);
 	let agent = chalk.black(chalk.bgHsl(color(data.sender.id), 100, 50)(data.sender.id));
 	
-	log(`${parent}:${chalk.black(chalk.bgHsl(color(data.id), 100, 50)(data.id))}:${chalk.hsl(color(data.sender.name),  100, 50)(data.sender.name)}: ${agent}> ${data.content}`);
+	log(`${parent}:${formatID(data.id)}:${chalk.hsl(color(data.sender.name),  100, 50)(data.sender.name)}: ${agent}> ${data.content}`);
 	memory.push(data);
-	rl.prompt();
+	rl.prompt(true);
+	rl.resume();
 
 }
 
