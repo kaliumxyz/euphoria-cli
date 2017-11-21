@@ -52,8 +52,15 @@ const rl = readline.createInterface({
 	terminal: true
 });
 
+/* events */
 connection.on('send-event', handleEvent);
 connection.on('send-reply', handleEvent);
+connection.on('join-event', ev => userList.push(ev.data));
+connection.on('part-event', ev => {
+	let i = userList.findIndex(user => user.id === ev.data.id);
+	if(i > -1)
+	userList.splice(i, 1);
+});
 
 /**
  * format id in the split colors appropriate.
