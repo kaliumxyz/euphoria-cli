@@ -98,7 +98,7 @@ function handlePost(post) {
 	let parent = formatID(post.parent);
 	let agent = chalk.black(chalk.bgHsl(color(post.sender.id), 100, 50)(post.sender.id));
 	
-	log(`${parent}:${formatID(post.id)}:${chalk.hsl(color(post.sender.name),  100, 50)(post.sender.name)}: ${agent}> ${post.content}`);
+	log(`${parent}:${formatID(post.id)}:${chalk.hsl(color(post.sender.name),  100, 50)(post.sender.name)}: ${agent}\n> ${post.content}`);
 	memory.push(post);
 	rl.resume();
 }
@@ -171,11 +171,11 @@ connection.once('ready', () => {
 	connection.once('snapshot-event', ev => {
 		userList = ev.data.listing;
 		ev.data.log.forEach(handlePost);
+		rl.prompt();
 	});
 	
 	connection.nick(config.nick)
 	log('bot initiated');
-	rl.prompt();
 
 	setInterval( () => {
 		if(!--afkCounter)
