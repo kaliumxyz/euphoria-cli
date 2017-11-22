@@ -1,5 +1,5 @@
 {
-	"nick": "K",
+	"nick": "",
 	"room": "xkcd",
 	"dataset": "dataset.txt",
 	"human": 1,
@@ -7,6 +7,9 @@
 	"prompt": ">",
 	"afk": {
 		"delay": 600
+	},
+	"visuals": {
+		"ID": 4
 	},
 	"reply": {
 		"delay": 5,

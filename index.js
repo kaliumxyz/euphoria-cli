@@ -66,11 +66,20 @@ connection.on('part-event', ev => {
  * format id in the split colors appropriate.
  * @param {String} id
  */
-function formatID(id){
+function formatID(id, n = 3){
+	if(n > 8)
+		throw new Error("id split has to be below 8")
+
+	// just rewrite this when it comes up
 	return id
 		? chalk.black(
-			chalk.bgHsl(color(id.slice(0, id.length/2)), 100, 50)(id.slice(0, id.length/2))
-			+ chalk.bgHsl(color(id.slice(id.length/2)), 100, 50)(id.slice(id.length/2))
+			(() => {
+				let res = "";
+				for(let i = 0; i < n; i++){
+					res += chalk.bgHsl(color(id.slice(id.length/n * i, id.length/n * (i+1))), 100, 50)(id.slice(id.length/n * i, id.length/n * (i+1)));
+				};
+				return res;
+			})()
 		) 
 		: ""
 	;
