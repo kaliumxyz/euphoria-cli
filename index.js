@@ -122,7 +122,6 @@ rl.on('line', line => {
 		process.exit();
 
 	if (command.startsWith('p')){
-		command.shift
 		connection.post(line);
 		clearTimeout(stack.shift());
 		override = true;
@@ -131,14 +130,7 @@ rl.on('line', line => {
 	if (command.startsWith('r')){
 		connection.post(line, memory[memory.length-1].id);
 		clearTimeout(stack.shift());
-	}
-
-	if (command.startsWith('m')) {
-		let temp = config.nick;
-		nick(config.nick + " - BOT");
-		connection.post(markov.end(Math.ceil(Math.random() * 100 % 40)).process(), memory[memory.length-1].id);
-		// add a delay so euph doesn't prevent the rapid nickchange
-		setInterval( () => nick(temp), 100);
+		override = true;
 	}
 
 	if (command.startsWith('n')){
@@ -151,6 +143,7 @@ rl.on('line', line => {
 
 	if(!override)
 	rl.prompt();
+	if(config.afk.enabled)
 	afkCounter = config.afk.delay * 1000;
 
 });
@@ -184,7 +177,7 @@ connection.once('ready', () => {
 	});
 	
 	connection.nick(config.nick)
-	log('bot initiated');
+	log('connected');
 
 	setInterval( () => {
 		if(!--afkCounter)
