@@ -66,7 +66,7 @@ connection.on('part-event', ev => {
  * format id in the split colors appropriate.
  * @param {String} id
  */
-function formatID(id, n = 3){
+function formatID(id, n = config.gui.id){
 	if(n > 8)
 		throw new Error("id split has to be below 8")
 

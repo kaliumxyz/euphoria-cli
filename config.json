@@ -1,7 +1,6 @@
 {
 	"nick": "K",
 	"room": "xkcd",
-	"dataset": "dataset.txt",
 	"human": 1,
 	"override": true,
 	"prompt": ">",
@@ -9,11 +8,10 @@
 		"delay": 0,
 		"enabled": false
 	},
-	"visuals": {
-		"ID": 4
+	"gui": {
+		"id": 4
 	},
 	"reply": {
-		"delay": 5,
-		"type": "markov"
+		"delay": 5
 	}
 }
