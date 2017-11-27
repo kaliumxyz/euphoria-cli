@@ -14,7 +14,7 @@ const config = require('./config.json');
 /* globals */
 let userList;
 
-// allows the user to override any setting in the config file by affixing --{setting} {option} when calling the script 
+// allows the user to override any setting in the config file by affixing --{setting} {option} when calling the script
 const args = process.argv
 		.join()
 		.match(/-\w+,\w+/g) || [];
@@ -69,7 +69,6 @@ connection.on('part-event', ev => {
 function formatID(id, n = config.gui.id){
 	if(n > 8)
 		throw new Error("id split has to be below 8")
-
 	// just rewrite this when it comes up
 	return id
 		? chalk.black(
@@ -80,25 +79,26 @@ function formatID(id, n = config.gui.id){
 				};
 				return res;
 			})()
-		) 
+		)
 		: ""
 	;
 }
 
 /**
- * 
- * @param {Object} event 
+ *
+ * @param {Object} event
  */
 
 function handleEvent(event){
 	const data = event.data;
+	rl.write(null, { ctrl: true, name: 'u'});
 	handlePost(data);
 	rl.prompt(true);
 }
 
 /**
  * formats and writes a euphoria post to TTY.
- * @param {Object} post 
+ * @param {Object} post
  */
 
 function handlePost(post) {
@@ -106,60 +106,79 @@ function handlePost(post) {
 	// log anything posted
 	let parent = formatID(post.parent);
 	let agent = chalk.black(chalk.bgHsl(color(post.sender.id), 100, 50)(post.sender.id));
-	
+
 	log(`${parent}:${formatID(post.id)}:${chalk.hsl(color(post.sender.name),  100, 50)(post.sender.name)}: ${agent}\n> ${post.content}`);
 	memory.push(post);
 	rl.resume();
 }
 
+/* keypress handling */
 
-rl.on('line', line => {
-	let override;
-	line = line.split(' ');
-	let command = line.shift();
-	line = line.join(' ');
-	if (command.startsWith('q'))
-		process.exit();
-
-	if (command.startsWith('p')){
-		connection.post(line);
-		clearTimeout(stack.shift());
-		override = true;
-	}
-
-	if (command.startsWith('r')){
-		connection.post(line, memory[memory.length-1].id);
-		clearTimeout(stack.shift());
-		override = true;
-	}
-
-	if (command.startsWith('n')){
-		config.nick = line;
-		nick(config.nick);
-	}
-
-	if (command.startsWith('a'))
-		nick(config.nick + " - AFK");
-
-	if(!override)
-	rl.prompt();
-	if(config.afk.enabled)
-	afkCounter = config.afk.delay * 1000;
+process.stdin.on('keypress', (key, ev) => {
+	if(ev.name === "left")
+	
+	
+	console.log(ev)
 
 });
 
 
+/* comment handling */
+
+rl.on('line', line => {
+	let override;
+	if (line.startsWith('!')){
+		line = line.split(' ');
+		let command = line.shift();
+		line = line.join(' ');
+		if (command.startsWith('!q'))
+		process.exit();
+		if (command.startsWith('!p')){
+			connection.post(line);
+			clearTimeout(stack.shift());
+			override = true;
+		}
+		if (command.startsWith('!n')){
+			config.nick = line;
+			nick(config.nick);
+		}
+		if (command.startsWith('!a'))
+			nick(config.nick + " - AFK");
+		if (command.startsWith('!r')){
+			connection.post(line, memory[memory.length-1].id);
+			clearTimeout(stack.shift());
+			override = true;
+		}
+		if(!override)
+		rl.prompt();
+		if(config.afk.enabled)
+		afkCounter = config.afk.delay * 1000;
+		return;
+	}
+
+
+	connection.post(line);
+	clearTimeout(stack.shift());
+
+	rl.prompt();
+	if(config.afk.enabled)
+	afkCounter = config.afk.delay * 1000;
+});
+
+
+
+
 /**
- * 
- * @param {*} userlist 
+ *
+ * @param {*} userlist
  */
 function renderUsers(userlist) {
-	
+
 }
 
 /**
  * sets the nick to {nick}
- * @param {String} nick 
+ * @param {String} nick
  */
 function nick(nick = "><>") {
 	config.nick = nick;
@@ -168,14 +187,14 @@ function nick(nick = "><>") {
 }
 
 connection.once('ready', () => {
-	
+
 	// start with reading out the snapshot event
 	connection.once('snapshot-event', ev => {
 		userList = ev.data.listing;
 		ev.data.log.forEach(handlePost);
 		rl.prompt();
 	});
-	
+
 	connection.nick(config.nick)
 	log('connected');
 
