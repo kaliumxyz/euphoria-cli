@@ -16,25 +16,25 @@ let userList;
 
 // allows the user to override any setting in the config file by affixing --{setting} {option} when calling the script
 const args = process.argv
-		.join()
-		.match(/-\w+,\w+/g) || [];
+	.join()
+	.match(/-\w+,\w+/g) || [];
 args.forEach( arg => {
-		let key = arg
-			.split(',')[0]
-			.replace('-','');
-		config[key] = arg.split(',')[1];
-	})
+	let key = arg
+		.split(',')[0]
+		.replace('-','');
+	config[key] = arg.split(',')[1];
+});
 
-const connection = new euphoriaConnection(config.room, config.human, "wss://euphoria.io", { origin: "https://euphoria.io" });
+const connection = new euphoriaConnection(config.room, config.human, 'wss://euphoria.io', { origin: 'https://euphoria.io' });
 
 /* logging */
-const logStream = fs.createWriteStream(path.join(__dirname, `application.log`), { flags: 'a' });
+const logStream = fs.createWriteStream(path.join(__dirname, 'application.log'), { flags: 'a' });
 function log(...text) {
-		text.forEach(text => {
-			process.stdout.write(`${text}\n`)
-			logStream.write(`${Date.now()} - ${JSON.stringify(text)}\n`)
-		});
-	}
+	text.forEach(text => {
+		process.stdout.write(`${text}\n`);
+		logStream.write(`${Date.now()} - ${JSON.stringify(text)}\n`);
+	});
+}
 
 /* memory */
 const memory = []; // post memory
@@ -43,8 +43,8 @@ let afkCounter = config.afk.delay * 1000;
 
 const rl = readline.createInterface({
 	completer: line => {
-		let list = userList.map(user => user.name)
-		return [list, line]
+		let list = userList.map(user => user.name);
+		return [list, line];
 	},
 	prompt: `${config.nick}${config.prompt}`,
 	input: process.stdin,
@@ -59,7 +59,7 @@ connection.on('join-event', ev => userList.push(ev.data));
 connection.on('part-event', ev => {
 	let i = userList.findIndex(user => user.id === ev.data.id);
 	if(i > -1)
-	userList.splice(i, 1);
+		userList.splice(i, 1);
 });
 
 /**
@@ -68,19 +68,19 @@ connection.on('part-event', ev => {
  */
 function formatID(id, n = config.gui.id){
 	if(n > 8)
-		throw new Error("id split has to be below 8")
+		throw new Error('id split has to be below 8');
 	// just rewrite this when it comes up
 	return id
 		? chalk.black(
 			(() => {
-				let res = "";
+				let res = '';
 				for(let i = 0; i < n; i++){
 					res += chalk.bgHsl(color(id.slice(id.length/n * i, id.length/n * (i+1))), 100, 50)(id.slice(id.length/n * i, id.length/n * (i+1)));
-				};
+				}
 				return res;
 			})()
 		)
-		: ""
+		: ''
 	;
 }
 
@@ -115,10 +115,10 @@ function handlePost(post) {
 /* keypress handling */
 
 process.stdin.on('keypress', (key, ev) => {
-	if(ev.name === "left")
+	if(ev.name === 'left')
 	
 	
-	console.log(ev)
+		console.log(ev);
 
 });
 
@@ -132,7 +132,7 @@ rl.on('line', line => {
 		let command = line.shift();
 		line = line.join(' ');
 		if (command.startsWith('!q'))
-		process.exit();
+			process.exit();
 		if (command.startsWith('!p')){
 			connection.post(line);
 			clearTimeout(stack.shift());
@@ -143,16 +143,16 @@ rl.on('line', line => {
 			nick(config.nick);
 		}
 		if (command.startsWith('!a'))
-			nick(config.nick + " - AFK");
+			nick(config.nick + ' - AFK');
 		if (command.startsWith('!r')){
 			connection.post(line, memory[memory.length-1].id);
 			clearTimeout(stack.shift());
 			override = true;
 		}
 		if(!override)
-		rl.prompt();
+			rl.prompt();
 		if(config.afk.enabled)
-		afkCounter = config.afk.delay * 1000;
+			afkCounter = config.afk.delay * 1000;
 		return;
 	}
 
@@ -162,7 +162,7 @@ rl.on('line', line => {
 
 	rl.prompt();
 	if(config.afk.enabled)
-	afkCounter = config.afk.delay * 1000;
+		afkCounter = config.afk.delay * 1000;
 });
 
 
@@ -180,7 +180,7 @@ function renderUsers(userlist) {
  * sets the nick to {nick}
  * @param {String} nick
  */
-function nick(nick = "><>") {
+function nick(nick = '><>') {
 	config.nick = nick;
 	connection.nick(nick);
 	rl.setPrompt(`${nick}${config.prompt}`);
@@ -195,12 +195,12 @@ connection.once('ready', () => {
 		rl.prompt();
 	});
 
-	connection.nick(config.nick)
+	connection.nick(config.nick);
 	log('connected');
 
 	setInterval( () => {
 		if(!--afkCounter)
-			connection.nick(config.nick + " - AFK");
+			connection.nick(config.nick + ' - AFK');
 
 	});
 });

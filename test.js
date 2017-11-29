@@ -1,3 +1,3 @@
-import test from "ava"
+import test from 'ava';
 
-test(t => t.pass()))
+test(t => t.pass());
