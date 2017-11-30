@@ -103,6 +103,9 @@ function handleEvent(event){
  */
 
 function handlePost(post) {
+	if(replyIndex === memory.length){
+		replyIndex++;
+	}
 	rl.pause();
 	// log anything posted
 	let parent = formatID(post.parent);
@@ -165,6 +168,16 @@ rl.on('line', line => {
 			afkCounter = config.afk.delay * 1000;
 		return;
 	}
+	if(replyIndex !== memory.length){
+		connection.post(line, memory[replyIndex].id);
+		clearTimeout(stack.shift());
+		rl.setPrompt(`${config.nick}>`);
+		rl.prompt();
+		if(config.afk.enabled)
+			afkCounter = config.afk.delay * 1000;
+		replyIndex = memory.length;
+		return;
+	}
 
 
 	connection.post(line);
@@ -202,7 +215,7 @@ connection.once('ready', () => {
 	connection.once('snapshot-event', ev => {
 		userList = ev.data.listing;
 		ev.data.log.forEach(handlePost);
-		replyIndex = memory.length - 1;
+		replyIndex = memory.length;
 		rl.prompt();
 	});
 
