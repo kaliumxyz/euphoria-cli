@@ -39,6 +39,7 @@ function log(...text) {
 /* memory */
 const memory = []; // post memory
 const stack = []; // planned event stack (timeouts) to allow us to override default acctions from CLI
+let replyIndex = 0;
 let afkCounter = config.afk.delay * 1000;
 
 const rl = readline.createInterface({
@@ -115,11 +116,20 @@ function handlePost(post) {
 /* keypress handling */
 
 process.stdin.on('keypress', (key, ev) => {
-	if(ev.name === 'left')
-	
-	
-		console.log(ev);
-
+	if(ev.name === 'left' && replyIndex > 0){
+		rl.setPrompt(`${formatID(memory[--replyIndex].id)}:${config.nick}>`);
+		rl.prompt();
+	}
+	if(ev.name === 'right'){
+		if(replyIndex < memory.length -1){
+			rl.setPrompt(`${formatID(memory[++replyIndex].id)}:${config.nick}>`);
+			rl.prompt();
+		} else {
+			replyIndex = memory.length;
+			rl.setPrompt(`${config.nick}>`);
+			rl.prompt();
+		}
+	}
 });
 
 
@@ -192,6 +202,7 @@ connection.once('ready', () => {
 	connection.once('snapshot-event', ev => {
 		userList = ev.data.listing;
 		ev.data.log.forEach(handlePost);
+		replyIndex = memory.length - 1;
 		rl.prompt();
 	});
 
