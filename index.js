@@ -92,7 +92,6 @@ function formatID(id, n = config.gui.id){
 
 function handleEvent(event){
 	const data = event.data;
-	rl.write(null, { ctrl: true, name: 'u'});
 	handlePost(data);
 	rl.prompt(true);
 }
