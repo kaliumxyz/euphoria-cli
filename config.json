@@ -1,6 +1,6 @@
 {
 	"nick": "K",
-	"room": "xkcd",
+	"room": "test",
 	"human": 1,
 	"override": true,
 	"prompt": ">",

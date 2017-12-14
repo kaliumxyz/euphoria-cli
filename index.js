@@ -118,11 +118,11 @@ function handlePost(post) {
 /* keypress handling */
 
 process.stdin.on('keypress', (key, ev) => {
-	if(ev.name === 'left' && replyIndex > 0){
+	if(ev.name === 'up' && ev.ctrl && replyIndex > 0){
 		rl.setPrompt(`${formatID(memory[--replyIndex].id)}:${config.nick}>`);
 		rl.prompt();
 	}
-	if(ev.name === 'right'){
+	if(ev.name === 'down' && ev.ctrl ){
 		if(replyIndex < memory.length -1){
 			rl.setPrompt(`${formatID(memory[++replyIndex].id)}:${config.nick}>`);
 			rl.prompt();
@@ -132,6 +132,8 @@ process.stdin.on('keypress', (key, ev) => {
 			rl.prompt();
 		}
 	}
+	if(ev.name === 'escape')
+		replyIndex = memory.length;
 });
 
 
@@ -174,7 +176,8 @@ rl.on('line', line => {
 		rl.prompt();
 		if(config.afk.enabled)
 			afkCounter = config.afk.delay * 1000;
-		replyIndex = memory.length;
+		if(config.reply)
+			replyIndex = memory.length;
 		return;
 	}
 
@@ -229,3 +232,7 @@ connection.once('ready', () => {
 });
 
 connection.on('close', (...ev) => log('closed:', ev));
+
+process.on('uncaughtException', function (err) {
+	  console.log(err);
+});
